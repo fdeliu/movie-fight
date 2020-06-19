@@ -1,26 +1,17 @@
 <template>
   <nav>
-
-    <v-toolbar flat app>
-      <v-toolbar-title class="text-uppercase grey--text">
-        <span>Projects </span>
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn flat color="grey">
-        <span>Sign Out</span>
-         <v-icon >exit_to_app</v-icon>
-      </v-btn>
-    </v-toolbar>
-
+    <v-app-bar app color="indigo" dark>
+      <v-row align="center" justify="center">
+        <v-toolbar-title>Movie Fight</v-toolbar-title>
+        <v-icon right>compare_arrows</v-icon>
+      </v-row>
+    </v-app-bar>
   </nav>
 </template>
 
 <script>
-export default{
-    
-}
+export default {};
 </script>
 
 <style scoped>
-
 </style>
