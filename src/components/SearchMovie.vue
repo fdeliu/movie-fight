@@ -1,7 +1,8 @@
 <template>
-  <v-card color="indigo lighten-2" dark>
+  <v-card color="indigo" dark>
     <v-card-text>
       <v-autocomplete
+        @change="fetchMovie"
         v-model="model"
         :items="items"
         :loading="isLoading"
@@ -20,7 +21,7 @@
     <v-expand-transition>
       <v-list v-if="model">
         <v-list-item>
-            <v-img :src="model.Poster" aspect-ratio="2" contain></v-img>
+          <v-img :src="model.Poster" aspect-ratio="1.5" contain></v-img>
         </v-list-item>
         <v-list-item v-for="(field, i) in fields" :key="i">
           <v-list-item-content>
@@ -32,7 +33,7 @@
     </v-expand-transition>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn :disabled="!model" color="red darken-3" @click="model = null">
+      <v-btn :disabled="!model" color="red darken-3" @click="reset">
         Clear
         <v-icon right>mdi-close-circle</v-icon>
       </v-btn>
@@ -50,16 +51,46 @@ export default {
     isLoading: false,
     model: null,
     search: null,
-    timeOut: null
+    timeOut: null,
+    selectedMovie: null
   }),
+  methods: {
+    fetchMovie() {
+      axios
+        .get("https://www.omdbapi.com/", {
+          params: {
+            apikey: process.env.VUE_APP_omdbapiKey,
+            i: this.model && this.model.imdbID
+          }
+        })
+        .then(res => {
+          //deleting some non useful properties
+          this.selectedMovie = res.data;
+          delete this.selectedMovie.Poster;
+          delete this.selectedMovie.imdbID;
+          delete this.selectedMovie.Website;
+          delete this.selectedMovie.Response;
+          delete this.selectedMovie.DVD;
+          delete this.selectedMovie.Production;
+          delete this.selectedMovie.Ratings;
+          this.$emit("movie-selected", res.data);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    reset() {
+      this.model = null;
+      this.$emit("clear");
+    }
+  },
   computed: {
     fields() {
-      if (!this.model) return [];
-
-      return Object.keys(this.model).map(key => {
+      if (!this.selectedMovie) return [];
+      return Object.keys(this.selectedMovie).map(key => {
         return {
           key,
-          value: this.model[key] || "n/a"
+          value: this.selectedMovie[key] || "n/a"
         };
       });
     },
@@ -88,9 +119,9 @@ export default {
         //fetch Movies
         if (val === null) return;
         axios
-          .get("http://www.omdbapi.com/", {
+          .get("https://www.omdbapi.com/", {
             params: {
-              apikey: "3feec314",
+              apikey: process.env.VUE_APP_omdbapiKey,
               s: val
             }
           })

@@ -2,54 +2,122 @@
   <v-app>
     <Navbar />
     <v-main>
-      <v-container>
-    <v-row>
-      <v-col cols="12"
-        md="6">
-       <FirstMovie />
-      </v-col>
-      <v-col cols="12"
-        md="6">
-       <SecondMovie />
-      </v-col>
-    </v-row>
-  </v-container>
+      <v-container fluid>
+        <v-container>
+          <v-row justify="center">
+            <v-btn
+              :disabled="disabled"
+              color="red darken-2"
+              class="white--text"
+              @click="startFight"
+            >
+              Start Fight
+              <v-icon right dark>sync</v-icon>
+            </v-btn>
+          </v-row>
+        </v-container>
+
+        <v-row justify="center">
+          <v-col cols="12" red md="5" :class="leftMovieClass">
+            <v-card outlined tile>
+              <SearchMovie v-on:movie-selected="getLeftMovie" v-on:clear="clear" />
+            </v-card>
+          </v-col>
+          <v-col md="1"></v-col>
+          <v-col cols="12" md="5" class="right-movie" :class="rightMovieClass">
+            <v-card outlined tile>
+              <SearchMovie v-on:movie-selected="getRightMovie" v-on:clear="clear" />
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-main>
+    <div class="text-center">
+      <v-dialog v-model="dialog" hide-overlay persistent width="300">
+        <v-card color="primary" dark>
+          <v-card-text class="pt-2">
+            Fighting Movies.....
+            <v-progress-linear indeterminate color="white" class="mt-2" height="8"></v-progress-linear>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+    </div>
   </v-app>
 </template>
 
 <script>
-import Navbar from "@/components/Navbar"
-import FirstMovie from "@/components/FirstMovie"
-import SecondMovie from "@/components/SecondMovie"
-import axios from"axios"
+import Navbar from "@/components/Navbar";
+import SearchMovie from "@/components/SearchMovie";
 export default {
   name: "App",
   components: {
     Navbar,
-    FirstMovie,
-    SecondMovie
+    SearchMovie
+  },
+  data() {
+    return {
+      leftMovie: null,
+      rightMovie: null,
+      fight: null,
+      disabled: true,
+      dialog: false
+    };
   },
   methods: {
-    fetchMovie: async () => {
-      try {
-        const res = await axios.get('http://www.omdbapi.com/',{
-          params:{
-            apikey:'3feec314',
-            s:'avengers'
-          }
-        });
-        console.log(res.data);
-        
-      } catch (error) {
-        console.log(error);
+    getLeftMovie(movie) {
+      this.leftMovie = movie;
+      if (this.rightMovie) {
+        this.disabled = false;
+      }
+    },
+    getRightMovie(movie) {
+      this.rightMovie = movie;
+      if (this.leftMovie) {
+        this.disabled = false;
+      }
+    },
+    startFight() {
+      this.dialog = true;
+      setTimeout(() => {
+        this.fight = true;
+      }, 2000);
+    },
+    clear() {
+      this.disabled = true;
+      this.fight = false;
+    }
+  },
+  computed: {
+    leftMovieClass() {
+      if (this.fight) {
+
+        return parseFloat(this.leftMovie.imdbRating) >
+          parseFloat(this.rightMovie.imdbRating)
+          ? "green"
+          : "yellow";
+      } else {
+        return "";
+      }
+    },
+    rightMovieClass() {
+      if (this.fight) {
+        return parseFloat(this.leftMovie.imdbRating) <
+          parseFloat(this.rightMovie.imdbRating)
+          ? "green"
+          : "yellow";
+      } else {
+        return "";
       }
     }
   },
-  created() {
-    // this.fetchMovie();
+  watch: {
+    dialog(val) {
+      if (!val) return;
+
+      setTimeout(() => (this.dialog = false), 2000);
+    }
   }
-}
+};
 </script>
 
 
@@ -58,5 +126,9 @@ export default {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+#app {
+  background: url("./assets/background-image.jpg") no-repeat center center/cover;
 }
 </style>
