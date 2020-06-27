@@ -42,6 +42,9 @@
         </v-card>
       </v-dialog>
     </div>
+      <footer class="bg-primary">
+      <h5 class="text-center py-2 text-white"> &copy; 2020 Flamur Deliu</h5>
+    </footer>
   </v-app>
 </template>
 
@@ -130,5 +133,12 @@ export default {
 
 #app {
   background: url("./assets/background-image.jpg") no-repeat center center/cover;
+}
+
+footer{
+  position: fixed;
+  width: 100%;
+  left:0;
+  bottom: 0;
 }
 </style>
